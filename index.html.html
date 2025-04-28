@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mega Goal 1.3 Quiz Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #fff0f5;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #ff1493;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            font-size: 2.5em;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.3);
+        }
+        
+        #question-container {
+            margin: 20px 0;
+            font-size: 1.3em;
+            min-height: 80px;
+        }
+        
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .answer-btn {
+            background-color: #ffb6c1;
+            color: #333;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .answer-btn:hover {
+            background-color: #ff69b4;
+            color: white;
+            transform: scale(1.03);
+        }
+        
+        .teams {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        
+        .team {
+            padding: 10px;
+            margin: 5px;
+            background-color: #ffb6c1;
+            border-radius: 5px;
+            min-width: 100px;
+            cursor: pointer;
+        }
+        
+        .team.active {
+            background-color: #ff69b4;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
+        }
+        
+        #timer {
+            font-size: 2em;
+            margin: 10px 0;
+            color: #ff1493;
+        }
+        
+        .control-btn {
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 10px 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        
+        .control-btn:hover {
+            background-color: #ff1493;
+        }
+        
+        #result-screen {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .team-result {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #ffb6c1;
+            border-radius: 5px;
+        }
+        
+        footer {
+            margin-top: 30px;
+            color: #ff1493;
+            font-style: italic;
+        }
+        
+        #game-over {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255,255,255,0.9);
+            z-index: 100;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .winner {
+            font-size: 3em;
+            color: #ff1493;
+            margin-bottom: 20px;
+        }
+        
+        .credits {
+            font-size: 1.5em;
+            margin-top: 30px;
+        }
+        
+        .time-up {
+            color: #ff0000;
+            font-weight: bold;
+            font-size: 1.5em;
+            display: none;
+            margin: 10px 0;
+        }
+        
+        .school-name {
+            display: block;
+            margin-top: 5px;
+            font-size: 1.1em;
+        }
+        
+        #explanation {
+            background-color: #f9f2f4;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+            text-align: left;
+            border-left: 5px solid #ff69b4;
+            color: #333;
+        }
+        
+        .question-type {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #ff1493;
+        }
+        
+        /* Team name inputs */
+        .team-name-input {
+            width: 90%;
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ffb6c1;
+            border-radius: 5px;
+        }
+        
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #ff69b4;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        /* Confetti animations */
+        #confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 16px;
+            background-color: #ff69b4;
+            opacity: 0;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100px);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(1000px);
+                opacity: 0;
+            }
+        }
+        
+        /* Ask Class feature */
+        .lifeline-container {
+            margin: 10px 0;
+        }
+        
+        .lifeline-btn {
+            background-color: #ffb6c1;
+            color: #333;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .lifeline-btn:hover {
+            background-color: #ff69b4;
+            color: white;
+        }
+        
+        .lifeline-btn:disabled {
+            background-color: #ddd;
+            color: #999;
+            cursor: not-allowed;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+        
+        .poll-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #fff0f5;
+            border-radius: 5px;
+        }
+        
+        .poll-bar {
+            height: 20px;
+            background-color: #ff69b4;
+            margin-top: 5px;
+            border-radius: 3px;
+        }
+        
+        /* Review mode */
+        .review-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .review-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ffb6c1;
+        }
+        
+        .review-question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .review-answer {
+            color: #00cc00;
+        }
+        
+        /* Tabs for results screen */
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .tab-btn {
+            background-color: #ffb6c1;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        
+        .tab-btn.active {
+            background-color: #ff69b4;
+            color: white;
+        }
+        
+        .tab-btn:first-child {
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .tab-btn:last-child {
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Leaderboard */
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ffb6c1;
+        }
+        
+        .leaderboard-table th {
+            background-color: #ff69b4;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mega Goal 1.3 Quiz Game</h1>
+        
+        <div id="start-screen">
+            <h2>Welcome to the Grammar & Vocabulary Quiz!</h2>
+            <p>Enter team names and select the active team</p>
+            
+            <div style="margin: 20px 0;">
+                <input type="text" id="team-name-1" class="team-name-input" placeholder="Team 1">
+                <input type="text" id="team-name-2" class="team-name-input" placeholder="Team 2">
+                <input type="text" id="team-name-3" class="team-name-input" placeholder="Team 3">
+                <input type="text" id="team-name-4" class="team-name-input" placeholder="Team 4">
+                <input type="text" id="team-name-5" class="team-name-input" placeholder="Team 5">
+                <input type="text" id="team-name-6" class="team-name-input" placeholder="Team 6">
+            </div>
+            
+            <button onclick="startGame()" class="control-btn">Start Game</button>
+        </div>
+        
+        <div id="game-screen" style="display:none;">
+            <div id="timer">01:00</div>
+            <div id="time-up" class="time-up">Time's Up!</div>
+            
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            <div class="progress-text">
+                Question <span id="current-question-num">1</span> of <span id="total-questions">20</span>
+            </div>
+            
+            <div class="teams">
+                <div class="team active" onclick="selectTeam(0)">
+                    <h3 id="team-display-1">Team 1</h3>
+                    <p class="score">0</p>
+                </div>
+                <div class="team" onclick="selectTeam(1)">
+                    <h3 id="team-display-2">Team 2</h3>
+                    <p class="score">0</p>
+                </div>
+                <div class="team" onclick="selectTeam(2)">
+                    <h3 id="team-display-3">Team 3</h3>
+                    <p class="score">0</p>
+                </div>
+                <div class="team" onclick="selectTeam(3)">
+                    <h3 id="team-display-4">Team 4</h3>
+                    <p class="score">0</p>
+                </div>
+                <div class="team" onclick="selectTeam(4)">
+                    <h3 id="team-display-5">Team 5</h3>
+                    <p class="score">0</p>
+                </div>
+                <div class="team" onclick="selectTeam(5)">
+                    <h3 id="team-display-6">Team 6</h3>
+                    <p class="score">0</p>
+                </div>
+            </div>
+            
+            <div class="lifeline-container">
+                <button id="ask-class-btn" onclick="askClass()" class="lifeline-btn">Ask the Class</button>
+            </div>
+            
+            <div id="question-container">
+                <div class="question-type" id="question-type">Grammar</div>
+                <p id="question-text">Question text will appear here</p>
+            </div>
+            
+            <div class="answers">
+                <button class="answer-btn" onclick="checkAnswer(0)">Answer 1</button>
+                <button class="answer-btn" onclick="checkAnswer(1)">Answer 2</button>
+                <button class="answer-btn" onclick="checkAnswer(2)">Answer 3</button>
+                <button class="answer-btn" onclick="checkAnswer(3)">Answer 4</button>
+            </div>
+            
+            <div id="explanation"></div>
+            
+            <div>
+                <button onclick="nextTeam()" class="control-btn">Next Team</button>
+                <button onclick="endGame()" class="control-btn">End Game</button>
+            </div>
+        </div>
+        
+        <div id="result-screen">
+            <h2>Game Results</h2>
+            
+            <div class="tab-container">
+                <button onclick="showTab('scores')" class="tab-btn active">Final Scores</button>
+                <button onclick="showTab('review')" class="tab-btn">Review Questions</button>
+                <button onclick="showTab('leaderboard')" class="tab-btn">Leaderboard</button>
+            </div>
+            
+            <div id="scores-tab" class="tab-content active">
+                <div id="final-scores"></div>
+            </div>
+            
+            <div id="review-tab" class="tab-content">
+                <div class="review-container" id="review-container"></div>
+            </div>
+            
+            <div id="leaderboard-tab" class="tab-content">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Team Name</th>
+                            <th>Score</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body"></tbody>
+                </table>
+            </div>
+            
+            <button onclick="resetGame()" class="control-btn">New Game</button>
+        </div>
+        
+        <footer>
+            <p>© 2025 - Created by Teacher Kholoud Alharthi
+            <span class="school-name">Khadija Bint Alzubair High School</span></p>
+        </footer>
+    </div>
+    
+    <div id="game-over">
+        <div class="winner" id="winner-text">Team X Wins!</div>
+        <button onclick="showScores()" class="control-btn">See Final Scores</button>
+        <div class="credits">
+            Quiz created by Teacher Kholoud Alharthi
+            <br>
+            <span class="school-name">Khadija Bint Alzubair High School</span>
+        </div>
+    </div>
+    
+    <div id="ask-class-modal" class="modal">
+        <div class="modal-content">
+            <h3>Class Poll Results</h3>
+            <div id="poll-options"></div>
+            <button onclick="closeModal()" class="control-btn">Close</button>
+        </div>
+    </div>
+    
+    <div id="confetti-container"></div>
+    
+    <script>
+        // Questions database - combined grammar and vocabulary
+        const questions = [
+            // Grammar questions
+            {
+                type: "Grammar",
+                question: "Fill in the blank: 'The door ____ to be fixed.'",
+                options: ["need", "needs", "needed", "needing"],
+                correctAnswer: 1,
+                explanation: "With 'Need to be done' structure, we use 'needs' (third person singular) with singular nouns like 'door'. The correct form is 'The door needs to be fixed.'"
+            },
+            {
+                type: "Grammar",
+                question: "Which sentence uses 'Need to be done' correctly?",
+                options: [
+                    "The window needs cleaning.",
+                    "The window needs clean.",
+                    "The window needs to be cleaned.",
+                    "The window need cleaned."
+                ],
+                correctAnswer: 2,
+                explanation: "The 'Need to be done' structure follows the pattern: subject + needs + to be + past participle. Therefore, 'The window needs to be cleaned' is correct."
+            },
+            {
+                type: "Grammar",
+                question: "Select the sentence that correctly uses 'have something done':",
+                options: [
+                    "I have done my hair yesterday.",
+                    "I had my hair cut last week.",
+                    "I have my hair cut tomorrow.",
+                    "I had cut my hair yesterday."
+                ],
+                correctAnswer: 1,
+                explanation: "The 'have something done' structure means someone else did the action for you. 'I had my hair cut last week' means someone else cut my hair for me. It follows the pattern: subject + had + object + past participle."
+            },
+            {
+                type: "Grammar",
+                question: "Which sentence correctly uses a past participle as an adjective?",
+                options: [
+                    "The window was break yesterday.",
+                    "I returned the tear shirt to the store.",
+                    "The breaking glass made a loud noise.",
+                    "I returned the broken vase to the store."
+                ],
+                correctAnswer: 3,
+                explanation: "Past participles can function as adjectives. In 'I returned the broken vase', 'broken' is the past participle of 'break' used as an adjective to describe the vase."
+            },
+            {
+                type: "Grammar",
+                question: "Choose the correct Present Perfect Simple question:",
+                options: [
+                    "Did you finish your homework yet?",
+                    "Have you finished your homework yet?",
+                    "Are you finished your homework yet?",
+                    "You have finished your homework yet?"
+                ],
+                correctAnswer: 1,
+                explanation: "Present Perfect questions follow the structure: Have/Has + subject + past participle. The correct form is 'Have you finished your homework yet?'"
+            },
+            {
+                type: "Grammar",
+                question: "Which sentence uses 'already' correctly with Present Perfect?",
+                options: [
+                    "She already has done the dishes.",
+                    "She has done already the dishes.",
+                    "She has already done the dishes.",
+                    "She has done the dishes already."
+                ],
+                correctAnswer: 2,
+                explanation: "In Present Perfect, 'already' is typically placed between 'has/have' and the past participle. The correct structure is 'She has already done the dishes.'"
+            },
+            {
+                type: "Grammar",
+                question: "Choose the correct object pronoun for the sentence: 'They gave ___ a present.'",
+                options: ["I", "they", "me", "my"],
+                correctAnswer: 2,
+                explanation: "We need an object pronoun after 'gave'. 'I' is a subject pronoun, 'they' is a subject pronoun, and 'my' is a possessive pronoun. 'Me' is the correct object pronoun to complete the sentence 'They gave me a present.'"
+            },
+            
+            // Vocabulary questions
+            {
+                type: "Vocabulary",
+                question: "Amal has returned the _______ jacket.",
+                options: ["torn", "faded", "fuzzy", "backup"],
+                correctAnswer: 0,
+                explanation: "The word 'torn' means ripped or damaged. In this context, Amal returned a jacket that was ripped or damaged."
+            },
+            {
+                type: "Vocabulary",
+                question: "The screen suddenly went _______.",
+                options: ["torn", "faded", "fuzzy", "backup"],
+                correctAnswer: 2,
+                explanation: "When a screen goes 'fuzzy', it becomes unclear or blurry, making it difficult to see the images or text clearly."
+            },
+            {
+                type: "Vocabulary",
+                question: "He was wearing _______ blue jeans.",
+                options: ["torn", "faded", "fuzzy", "backup"],
+                correctAnswer: 1,
+                explanation: "The word 'faded' describes something that has lost its color or brightness over time. In this context, the blue jeans have lost some of their color and appear lighter than they were originally."
+            },
+            {
+                type: "Vocabulary",
+                question: "Make a _______ of any work you do on the computer.",
+                options: ["torn", "faded", "fuzzy", "backup"],
+                correctAnswer: 3,
+                explanation: "A 'backup' is a copy of digital data stored separately from the original, so that it can be used if the original is lost or damaged. Making a backup of computer work is an important safety measure."
+            },
+            {
+                type: "Vocabulary",
+                question: "What does 'refund' mean?",
+                options: ["very dirty", "a lot of", "get the payment back"],
+                correctAnswer: 2,
+                explanation: "A 'refund' means to get your payment back after returning a product or canceling a service."
+            },
+            {
+                type: "Vocabulary",
+                question: "What does 'filthy' mean?",
+                options: ["very dirty", "a lot of", "get the payment back"],
+                correctAnswer: 0,
+                explanation: "The word 'filthy' means extremely dirty or unclean."
+            },
+            {
+                type: "Vocabulary",
+                question: "What does 'plenty' mean?",
+                options: ["very dirty", "a lot of", "get the payment back"],
+                correctAnswer: 1,
+                explanation: "The word 'plenty' means a large amount or a sufficient quantity of something."
+            },
+            {
+                type: "Vocabulary",
+                question: "The other boys _______ him because he is fat.",
+                options: ["wonder", "tornado", "teased", "remote"],
+                correctAnswer: 2,
+                explanation: "To 'tease' someone means to make fun of them or mock them. In this context, the boys are making fun of someone because of their weight."
+            },
+            {
+                type: "Vocabulary",
+                question: "The _______ destroyed everything in its path.",
+                options: ["wonder", "tornado", "teased", "remote"],
+                correctAnswer: 1,
+                explanation: "A 'tornado' is a violent, rotating column of air that can cause destruction. This is the only option that represents a destructive natural force."
+            },
+            {
+                type: "Vocabulary",
+                question: "I _______ who that letter was from?",
+                options: ["wonder", "tornado", "teased", "remote"],
+                correctAnswer: 0,
+                explanation: "To 'wonder' means to think about something curiously or to question something. In this context, the person is curious about who sent the letter."
+            },
+            {
+                type: "Vocabulary",
+                question: "They lived in a _______ mountain village.",
+                options: ["wonder", "tornado", "teased", "remote"],
+                correctAnswer: 3,
+                explanation: "The word 'remote' describes a place that is far away from other places, isolated, or difficult to access. A 'remote mountain village' would be one that is isolated and far from other settlements."
+            },
+            {
+                type: "Vocabulary",
+                question: "This diamond watch is a family _______.",
+                options: ["devastated", "allowance", "breathing", "heirloom"],
+                correctAnswer: 3,
+                explanation: "An 'heirloom' is a valuable object that has been passed down through generations of a family. A diamond watch passed down through a family would be considered an heirloom."
+            },
+            {
+                type: "Vocabulary",
+                question: "My father gives me an _______ of $200 a month.",
+                options: ["devastated", "allowance", "breathing", "heirloom"],
+                correctAnswer: 1,
+                explanation: "An 'allowance' is a sum of money given regularly to someone, often by parents to their children. In this context, it refers to money given monthly by a father to their child."
+            }
+        ];
+
+        // Game state
+        let currentQuestion = 0;
+        let currentTeam = 0;
+        let scores = [0, 0, 0, 0, 0, 0];
+        let timerInterval;
+        let secondsLeft = 60;
+        let hasAnswered = false;
+        let teamNames = ["Team 1", "Team 2", "Team 3", "Team 4", "Team 5", "Team 6"];
+        let answeredQuestions = [];
+        let usedAskClass = false;
+        
+        // Try to get leaderboard from localStorage
+        let leaderboard = [];
+        try {
+            const savedLeaderboard = localStorage.getItem('quizLeaderboard');
+            if (savedLeaderboard) {
+                leaderboard = JSON.parse(savedLeaderboard);
+            }
+        } catch (e) {
+            console.log("Could not load leaderboard from localStorage");
+        }
+        
+        // Shuffle the questions
+        function shuffleQuestions() {
+            for (let i = questions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [questions[i], questions[j]] = [questions[j], questions[i]];
+            }
+        }
+        
+        // Initialize the game when page loads
+        shuffleQuestions();
+        document.getElementById('total-questions').textContent = questions.length;
+        
+        // Play sound (with fallback)
+        function playSound(type) {
+            try {
+                let sound;
+                if (type === 'correct') {
+                    sound = new Audio('https://www.myinstants.com/media/sounds/correct-answer.mp3');
+                } else if (type === 'wrong') {
+                    sound = new Audio('https://www.myinstants.com/media/sounds/wrong-answer.mp3');
+                } else if (type === 'click') {
+                    sound = new Audio('https://www.myinstants.com/media/sounds/button-click.mp3');
+                }
+                
+                if (sound) {
+                    sound.play().catch(err => console.log("Sound play error:", err));
+                }
+            } catch (e) {
+                console.log("Sound play failed");
+            }
+        }
+        
+        // Show confetti effect
+        function showConfetti() {
+            try {
+                const container = document.getElementById('confetti-container');
+                container.innerHTML = '';
+                
+                const colors = ['#ff69b4', '#ffb6c1', '#ffc0cb', '#ff1493'];
+                
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.animation = `confetti-fall ${Math.random() * 3 + 2}s ease forwards`;
+                    confetti.style.opacity = '1';
+                    
+                    container.appendChild(confetti);
+                }
+                
+                setTimeout(() => {
+                    container.innerHTML = '';
+                }, 5000);
+            } catch (e) {
+                console.log("Confetti error:", e);
+            }
+        }
+        
+        // Start the game
+        function startGame() {
+            try {
+                // Get custom team names
+                for (let i = 1; i <= 6; i++) {
+                    const inputValue = document.getElementById('team-name-' + i).value.trim();
+                    if (inputValue) {
+                        teamNames[i-1] = inputValue;
+                    }
+                }
+                
+                // Update team names on game screen
+                const teamDisplays = document.querySelectorAll('.team h3');
+                for (let i = 0; i < teamDisplays.length; i++) {
+                    teamDisplays[i].textContent = teamNames[i];
+                }
+                
+                // Show game screen
+                document.getElementById('start-screen').style.display = 'none';
+                document.getElementById('game-screen').style.display = 'block';
+                
+                // Reset game state
+                currentQuestion = 0;
+                currentTeam = 0;
+                scores = [0, 0, 0, 0, 0, 0];
+                hasAnswered = false;
+                answeredQuestions = [];
+                usedAskClass = false;
+                
+                // Update UI
+                updateScores();
+                selectTeam(0);
+                document.getElementById('ask-class-btn').disabled = false;
+                
+                // Load first question
+                loadQuestion();
+                startTimer();
+            } catch (e) {
+                console.error("Error starting game:", e);
+                alert("There was an error starting the game. Please try again.");
+            }
+        }
+        
+        // Select team
+        function selectTeam(teamIndex) {
+            if (hasAnswered) return; // Can only select team when not in middle of question
+            
+            currentTeam = teamIndex;
+            const teams = document.querySelectorAll('.team');
+            
+            teams.forEach((team, index) => {
+                if (index === teamIndex) {
+                    team.classList.add('active');
+                } else {
+                    team.classList.remove('active');
+                }
+            });
+        }
+        
+        // Load question
+        function loadQuestion() {
+            try {
+                const question = questions[currentQuestion];
+                
+                // Update question text and type
+                document.getElementById('question-text').textContent = question.question;
+                document.getElementById('question-type').textContent = question.type;
+                
+                // Update progress
+                document.getElementById('current-question-num').textContent = (currentQuestion + 1).toString();
+                const progressPercent = ((currentQuestion + 1) / questions.length) * 100;
+                document.getElementById('progress-bar').style.width = progressPercent + '%';
+                
+                // Update answer buttons
+                const answerButtons = document.querySelectorAll('.answer-btn');
+                for (let i = 0; i < answerButtons.length; i++) {
+                    if (i < question.options.length) {
+                        answerButtons[i].textContent = question.options[i];
+                        answerButtons[i].style.display = 'block';
+                        answerButtons[i].disabled = false;
+                        answerButtons[i].style.backgroundColor = '#ffb6c1';
+                    } else {
+                        answerButtons[i].style.display = 'none';
+                    }
+                }
+                
+                // Reset state
+                hasAnswered = false;
+                document.getElementById('time-up').style.display = 'none';
+                document.getElementById('explanation').style.display = 'none';
+                document.getElementById('explanation').textContent = '';
+            } catch (e) {
+                console.error("Error loading question:", e);
+            }
+        }
+        
+        // Check answer
+        function checkAnswer(selectedIndex) {
+            if (hasAnswered) return;
+            
+            try {
+                hasAnswered = true;
+                clearInterval(timerInterval);
+                
+                const question = questions[currentQuestion];
+                const answerButtons = document.querySelectorAll('.answer-btn');
+                
+                // Disable all buttons
+                answerButtons.forEach(button => {
+                    button.disabled = true;
+                });
+                
+                // Check if correct
+                if (selectedIndex === question.correctAnswer) {
+                    // Correct answer
+                    answerButtons[selectedIndex].style.backgroundColor = '#00cc00';
+                    scores[currentTeam] += 1;
+                    updateScores();
+                    playSound('correct');
+                    showConfetti();
+                    
+                    // Store answer info
+                    answeredQuestions.push({
+                        question: question.question,
+                        correct: true,
+                        answer: question.options[question.correctAnswer]
+                    });
+                } else {
+                    // Incorrect answer
+                    answerButtons[selectedIndex].style.backgroundColor = '#ff0000';
+                    answerButtons[question.correctAnswer].style.backgroundColor = '#00cc00';
+                    playSound('wrong');
+                    
+                    // Show explanation
+                    document.getElementById('explanation').textContent = question.explanation;
+                    document.getElementById('explanation').style.display = 'block';
+                    
+                    // Store answer info
+                    answeredQuestions.push({
+                        question: question.question,
+                        correct: false,
+                        answer: question.options[question.correctAnswer]
+                    });
+                }
+            } catch (e) {
+                console.error("Error checking answer:", e);
+            }
+        }
+        
+        // Move to next team
+        function nextTeam() {
+            if (!hasAnswered) return;
+            
+            try {
+                playSound('click');
+                
+                currentTeam = (currentTeam + 1) % 6;
+                currentQuestion = (currentQuestion + 1) % questions.length;
+                
+                // Update active team
+                selectTeam(currentTeam);
+                
+                // Load next question
+                loadQuestion();
+                startTimer();
+            } catch (e) {
+                console.error("Error moving to next team:", e);
+            }
+        }
+        
+        // Update scores
+        function updateScores() {
+            try {
+                const scoreElements = document.querySelectorAll('.team .score');
+                for (let i = 0; i < scores.length; i++) {
+                    scoreElements[i].textContent = scores[i];
+                }
+            } catch (e) {
+                console.error("Error updating scores:", e);
+            }
+        }
+        
+        // Timer functions
+        function startTimer() {
+            try {
+                clearInterval(timerInterval);
+                secondsLeft = 60;
+                updateTimerDisplay();
+                
+                timerInterval = setInterval(() => {
+                    secondsLeft--;
+                    updateTimerDisplay();
+                    
+                    if (secondsLeft <= 0) {
+                        clearInterval(timerInterval);
+                        timeIsUp();
+                    }
+                }, 1000);
+            } catch (e) {
+                console.error("Timer error:", e);
+            }
+        }
+        
+        function updateTimerDisplay() {
+            try {
+                const minutes = Math.floor(secondsLeft / 60);
+                const seconds = secondsLeft % 60;
+                const timerElement = document.getElementById('timer');
+                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (secondsLeft <= 10) {
+                    timerElement.style.color = '#ff0000';
+                } else {
+                    timerElement.style.color = '#ff1493';
+                }
+            } catch (e) {
+                console.error("Error updating timer:", e);
+            }
+        }
+        
+        function timeIsUp() {
+            if (hasAnswered) return;
+            
+            try {
+                hasAnswered = true;
+                
+                // Disable buttons
+                const answerButtons = document.querySelectorAll('.answer-btn');
+                answerButtons.forEach(button => {
+                    button.disabled = true;
+                });
+                
+                // Show correct answer
+                const question = questions[currentQuestion];
+                answerButtons[question.correctAnswer].style.backgroundColor = '#00cc00';
+                
+                // Show time up message
+                document.getElementById('time-up').style.display = 'block';
+                playSound('wrong');
+                
+                // Show explanation
+                document.getElementById('explanation').textContent = question.explanation;
+                document.getElementById('explanation').style.display = 'block';
+                
+                // Store answer info
+                answeredQuestions.push({
+                    question: question.question,
+                    correct: false,
+                    answer: question.options[question.correctAnswer]
+                });
+            } catch (e) {
+                console.error("Error handling time up:", e);
+            }
+        }
+        
+        // Ask the class lifeline
+        function askClass() {
+            if (usedAskClass || !hasAnswered) return;
+            
+            try {
+                usedAskClass = true;
+                document.getElementById('ask-class-btn').disabled = true;
+                
+                const question = questions[currentQuestion];
+                const pollOptions = document.getElementById('poll-options');
+                pollOptions.innerHTML = '';
+                
+                // Create fake poll results biased toward correct answer
+                const votes = [0, 0, 0, 0];
+                const totalVotes = 20;
+                
+                // Distribute votes - weight toward correct answer
+                for (let i = 0; i < totalVotes; i++) {
+                    const rand = Math.random();
+                    if (rand < 0.6) {
+                        // 60% chance for correct answer
+                        votes[question.correctAnswer]++;
+                    } else {
+                        // 40% chance for other answers
+                        let wrongAnswer;
+                        do {
+                            wrongAnswer = Math.floor(Math.random() * question.options.length);
+                        } while (wrongAnswer === question.correctAnswer);
+                        votes[wrongAnswer]++;
+                    }
+                }
+                
+                // Create poll option elements
+                for (let i = 0; i < question.options.length; i++) {
+                    const percent = Math.round((votes[i] / totalVotes) * 100);
+                    
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'poll-option';
+                    optionDiv.innerHTML = `
+                        <div>${question.options[i]}</div>
+                        <div>${percent}% (${votes[i]} votes)</div>
+                    `;
+                    
+                    const barDiv = document.createElement('div');
+                    barDiv.className = 'poll-bar';
+                    barDiv.style.width = percent + '%';
+                    
+                    optionDiv.appendChild(barDiv);
+                    pollOptions.appendChild(optionDiv);
+                }
+                
+                // Show modal
+                document.getElementById('ask-class-modal').style.display = 'block';
+            } catch (e) {
+                console.error("Error with Ask Class feature:", e);
+            }
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('ask-class-modal').style.display = 'none';
+        }
+        
+        // End game
+        function endGame() {
+            try {
+                playSound('click');
+                clearInterval(timerInterval);
+                
+                // Add to leaderboard
+                let winnerName = teamNames[0];
+                let winnerScore = scores[0];
+                
+                for (let i = 1; i < scores.length; i++) {
+                    if (scores[i] > winnerScore) {
+                        winnerScore = scores[i];
+                        winnerName = teamNames[i];
+                    }
+                }
+                
+                // Add to leaderboard
+                leaderboard.push({
+                    name: winnerName,
+                    score: winnerScore,
+                    date: new Date().toLocaleDateString()
+                });
+                
+                // Sort leaderboard
+                leaderboard.sort((a, b) => b.score - a.score);
+                
+                // Keep only top 10
+                if (leaderboard.length > 10) {
+                    leaderboard = leaderboard.slice(0, 10);
+                }
+                
+                // Save to localStorage
+                try {
+                    localStorage.setItem('quizLeaderboard', JSON.stringify(leaderboard));
+                } catch (e) {
+                    console.log("Could not save leaderboard");
+                }
+                
+                // Show winner screen
+                document.getElementById('winner-text').textContent = `${winnerName} Wins!`;
+                document.getElementById('game-screen').style.display = 'none';
+                document.getElementById('game-over').style.display = 'flex';
+            } catch (e) {
+                console.error("Error ending game:", e);
+            }
+        }
+        
+        // Show scores
+        function showScores() {
+            try {
+                document.getElementById('game-over').style.display = 'none';
+                
+                // Populate final scores
+                let scoresHTML = '';
+                for (let i = 0; i < scores.length; i++) {
+                    scoresHTML += `<div class="team-result">
+                        <span>${teamNames[i]}</span>
+                        <span>${scores[i]} points</span>
+                    </div>`;
+                }
+                document.getElementById('final-scores').innerHTML = scoresHTML;
+                
+                // Populate review tab
+                let reviewHTML = '';
+                for (let i = 0; i < answeredQuestions.length; i++) {
+                    const q = answeredQuestions[i];
+                    reviewHTML += `<div class="review-item">
+                        <div class="review-question">${i+1}. ${q.question}</div>
+                        <div class="review-answer">Answer: ${q.answer}</div>
+                        <div>${q.correct ? '✓ Correct' : '✗ Incorrect'}</div>
+                    </div>`;
+                }
+                document.getElementById('review-container').innerHTML = reviewHTML;
+                
+                // Populate leaderboard tab
+                let leaderboardHTML = '';
+                for (let i = 0; i < leaderboard.length; i++) {
+                    leaderboardHTML += `<tr>
+                        <td>${i+1}</td>
+                        <td>${leaderboard[i].name}</td>
+                        <td>${leaderboard[i].score}</td>
+                        <td>${leaderboard[i].date}</td>
+                    </tr>`;
+                }
+                document.getElementById('leaderboard-body').innerHTML = leaderboardHTML;
+                
+                // Show scores tab by default
+                showTab('scores');
+                
+                // Show result screen
+                document.getElementById('result-screen').style.display = 'block';
+            } catch (e) {
+                console.error("Error showing scores:", e);
+            }
+        }
+        
+        // Show tab content
+        function showTab(tabName) {
+            try {
+                // Hide all tabs
+                const tabContents = document.querySelectorAll('.tab-content');
+                tabContents.forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Show selected tab
+                document.getElementById(tabName + '-tab').classList.add('active');
+                
+                // Highlight tab button
+                const tabButtons = document.querySelectorAll('.tab-btn');
+                tabButtons.forEach(button => {
+                    button.classList.remove('active');
+                    if (button.getAttribute('onclick').includes(tabName)) {
+                        button.classList.add('active');
+                    }
+                });
+            } catch (e) {
+                console.error("Error showing tab:", e);
+            }
+        }
+        
+        // Reset game
+        function resetGame() {
+            try {
+                // Reset game state
+                currentQuestion = 0;
+                currentTeam = 0;
+                scores = [0, 0, 0, 0, 0, 0];
+                hasAnswered = false;
+                answeredQuestions = [];
+                usedAskClass = false;
+                
+                // Shuffle questions
+                shuffleQuestions();
+                
+                // Reset UI
+                updateScores();
+                document.getElementById('game-over').style.display = 'none';
+                document.getElementById('result-screen').style.display = 'none';
+                document.getElementById('start-screen').style.display = 'block';
+                document.getElementById('ask-class-btn').disabled = false;
+            } catch (e) {
+                console.error("Error resetting game:", e);
+            }
+        }
+    </script>
+</body>
+</html>
